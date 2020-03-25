@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+	<mapper namespace="com.aeon.mm.main.app.mapper.Mapper">
+		<select id="findByIdAndPassword" resultMap="ResultMap">
+			SELECT l.id ,l.login_id,l.name , tai.agency_id, a.agency_name 
+				,CASE WHEN (a.location = 0) THEN 'Yangon' ELSE 'Mandalay' END AS location
+				,tai.team_id,tai.team_name
+				,CASE WHEN (tai.target = 0) THEN 'Mobile' WHEN (tai.target = 0) THEN 'Non-Mobile' ELSE 'Personal-Loan' END AS target
+				,aoi.outlet_id,aoi.id as agency_outlet_id,aoi.outlet_name 
+				
+			FROM ass.login_info l 
+			JOIN ass.agency_info a 
+			ON l.agency_id = a.id 
+			JOIN (SELECT team_id, team_name,target,agency_id 
+					FROM ass.team_info t 
+					JOIN ass.team_agency ta ON t.id = ta.team_id) AS tai 
+			ON l.agency_id = tai.agency_id 
+			JOIN (SELECT ao.id, o.id as outlet_id,o.outlet_name 
+					FROM ass.agency_outlet ao 
+					JOIN ass.outlet_info o ON o.id = ao.outlet_id) AS aoi 
+			ON aoi.id = l.agency_outlet_id 
+			<where>
+			l.login_id = #{loginID} 
+			AND	l.password = #{loginPassword}
+			</where>
+			ORDER BY tai.team_id
+		</select>
+		
+		<resultMap type="com.aeon.mm.main.app.bean.AppLoginInfoForm" id="ResultMap">
+			<id column="team_id" property="teamId"/>
+			<result column="id" property="id"/>
+			<result column="login_id" property="loginId"/>
+			<result column="name" property="name"/>
+			<result column="agency_id" property="agencyId"/>
+			<result column="agency_name" property="agencyName"/>
+			<result column="location" property="location"/>
+			<result column="outlet_id" property="outletId"/>
+			<result column="outlet_name" property="outletName"/>
+			<result column="target" property="target"/>
+			<result column="team_id" property="teamId"/>
+			<result column="team_name" property="teamId"/>
+			<result column="agency_outlet_id" property="agencyOutletId"/>
+			
+		</resultMap>
+	</mapper>
